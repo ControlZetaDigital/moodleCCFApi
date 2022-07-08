@@ -4,42 +4,30 @@ class FieldsController extends BaseController
     /**
      * "/fields/get" Endpoint - Get fields list by course id
      */
+    protected $responseData;
+
     public function getAction()
     {
-        $strErrorDesc = '';
-        $requestMethod = $_SERVER["REQUEST_METHOD"];
-        $arrQueryStringParams = $this->getQueryStringParams();
- 
-        if (strtoupper($requestMethod) == 'GET') {
+        if (strtoupper($this->requestMethod) == 'GET') {
             try {
                 $fieldsModel = new FieldsModel();
 
                 $courseID = 0;
-                if (isset($arrQueryStringParams['id']) && $arrQueryStringParams['id']) {
-                    $courseID = $arrQueryStringParams['id'];
+                if (isset($this->params['id']) && $this->params['id']) {
+                    $courseID = $this->params['id'];
                 }
  
-                $arrFields = $fieldsModel->getFields($courseID);
-                $responseData = json_encode($arrFields);
+                $response = $fieldsModel->getFields($courseID);
+                $this->responseData = json_encode($response);
             } catch (Error $e) {
-                $strErrorDesc = $e->getMessage().'Something went wrong! Please contact support.';
-                $strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
+                $this->strErrorDesc = $e->getMessage();
+                $this->strErrorHeader = 'HTTP/1.1 500 Internal Server Error';
             }
         } else {
-            $strErrorDesc = 'Method not supported';
-            $strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
+            $this->strErrorDesc = 'Method not supported';
+            $this->strErrorHeader = 'HTTP/1.1 422 Unprocessable Entity';
         }
  
-        // send output
-        if (!$strErrorDesc) {
-            $this->sendOutput(
-                $responseData,
-                array('Content-Type: application/json', 'HTTP/1.1 200 OK')
-            );
-        } else {
-            $this->sendOutput(json_encode(array('error' => $strErrorDesc)), 
-                array('Content-Type: application/json', $strErrorHeader)
-            );
-        }
+        $this->validateOutput();
     }
 }

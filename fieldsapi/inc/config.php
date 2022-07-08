@@ -1,5 +1,6 @@
 <?php
 require_once(PROJECT_ROOT_PATH . '/../config.php');
+require_once(PROJECT_ROOT_PATH . '/../webservice/lib.php');
 
 define("DB_HOST", $CFG->dbhost);
 define("DB_USERNAME", $CFG->dbuser);
